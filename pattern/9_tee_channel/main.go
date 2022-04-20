@@ -10,9 +10,9 @@ import (
 		如一个传递用户指令的channel，我可以将它们发送给指定的执行器以及相应的日志记录下来。
 */
 
-func tee[T any](done <-chan interface{}, in <-chan T) (_, _ <-chan T) {
-	out1 := make(chan T)
-	out2 := make(chan T)
+func tee(done <-chan interface{}, in <-chan any) (_, _ <-chan any) {
+	out1 := make(chan any)
+	out2 := make(chan any)
 	go func() {
 		defer close(out1)
 		defer close(out2)

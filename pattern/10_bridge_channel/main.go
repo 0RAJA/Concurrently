@@ -7,12 +7,12 @@ import (
 
 /*从一系列的channel中消费产生的值 <-chan1 <-chan2 */
 
-func bridge[T any](done <-chan interface{}, chanStream <-chan <-chan T) <-chan T {
-	valStream := make(chan T)
+func bridge(done <-chan interface{}, chanStream <-chan <-chan any) <-chan any {
+	valStream := make(chan any)
 	go func() {
 		defer close(valStream)
 		for {
-			var stream <-chan T
+			var stream <-chan any
 			select {
 			case mybeStream, ok := <-chanStream: //读取chanStream中的channel
 				if !ok {

@@ -3,12 +3,12 @@ package common
 import "sync"
 
 // Bridge 通过接受传输chan的chan，将值传递给给回去(这个是按顺序读完一个channel才会选择下一个channel)
-func Bridge[T any](done <-chan interface{}, chanStream <-chan <-chan T) <-chan T {
-	valStream := make(chan T)
+func Bridge(done <-chan interface{}, chanStream <-chan <-chan any) <-chan any {
+	valStream := make(chan any)
 	go func() {
 		defer close(valStream)
 		for {
-			var stream <-chan T
+			var stream <-chan any
 			select {
 			case mybeStream, ok := <-chanStream: //读取chanStream中的channel
 				if !ok {
@@ -31,9 +31,9 @@ func Bridge[T any](done <-chan interface{}, chanStream <-chan <-chan T) <-chan T
 }
 
 // Tee 读取in数据并同时发送给两个接受的channel
-func Tee[T any](done <-chan interface{}, in <-chan T) (_, _ <-chan T) {
-	out1 := make(chan T)
-	out2 := make(chan T)
+func Tee(done <-chan interface{}, in <-chan any) (_, _ <-chan any) {
+	out1 := make(chan any)
+	out2 := make(chan any)
 	go func() {
 		defer close(out1)
 		defer close(out2)
@@ -55,8 +55,8 @@ func Tee[T any](done <-chan interface{}, in <-chan T) (_, _ <-chan T) {
 }
 
 // OrDone 通过done来控制性读取chan
-func OrDone[T any](done <-chan interface{}, c <-chan T) <-chan T {
-	valStream := make(chan T)
+func OrDone(done <-chan interface{}, c <-chan any) <-chan any {
+	valStream := make(chan any)
 	go func() {
 		defer close(valStream)
 		for {
@@ -93,10 +93,10 @@ type Number interface {
 }
 
 // FanIn 从多个channels中合并数据到一个channel
-func FanIn[T any](done <-chan interface{}, channels []<-chan T) <-chan T {
+func FanIn(done <-chan interface{}, channels []<-chan any) <-chan any {
 	var wg sync.WaitGroup
-	multiplexedStream := make(chan T)
-	multiplex := func(c <-chan T) {
+	multiplexedStream := make(chan any)
+	multiplex := func(c <-chan any) {
 		defer wg.Done()
 		for i := range c {
 			select {
@@ -150,7 +150,7 @@ func Add[V Number](done <-chan interface{}, valueStream <-chan V, additive V) <-
 }
 
 // ToType 显式转换为对应类型
-func ToType[T MyInteger](done <-chan interface{}, valueStream <-chan interface{}) <-chan T {
+func ToType[T any](done <-chan interface{}, valueStream <-chan interface{}) <-chan T {
 	stringStream := make(chan T)
 	go func() {
 		defer close(stringStream)
@@ -189,8 +189,8 @@ func PrimeFinder[T MyInteger](done <-chan interface{}, intStream <-chan T) <-cha
 }
 
 // Take 取出num个数后结束
-func Take[T any](done <-chan interface{}, valueStream <-chan T, num int) <-chan T {
-	results := make(chan T)
+func Take(done <-chan interface{}, valueStream <-chan any, num int) <-chan any {
+	results := make(chan any)
 	go func() {
 		defer close(results)
 		for i := 0; i < num; i++ {
@@ -221,8 +221,8 @@ func RepeatFn(done <-chan interface{}, fn func() interface{}) <-chan interface{}
 }
 
 // Repeat 重复生成值
-func Repeat[T any](done <-chan interface{}, values ...T) <-chan T {
-	valueStream := make(chan T)
+func Repeat(done <-chan interface{}, values ...any) <-chan any {
+	valueStream := make(chan any)
 	go func() {
 		defer close(valueStream)
 		for {

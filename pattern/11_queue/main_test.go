@@ -32,7 +32,7 @@ func performWrite(b *testing.B, write io.Writer) {
 	done := make(chan interface{})
 	defer close(done)
 	b.ResetTimer()
-	for bt := range common.Take(done, common.Repeat(done, byte(1)), b.N) {
+	for bt := range common.ToType[byte](done, common.Take(done, common.Repeat(done, byte(1)), b.N)) {
 		write.Write([]byte{bt})
 	}
 }
