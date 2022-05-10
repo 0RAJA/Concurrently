@@ -10,7 +10,7 @@ func Bridge(done <-chan interface{}, chanStream <-chan <-chan any) <-chan any {
 		for {
 			var stream <-chan any
 			select {
-			case mybeStream, ok := <-chanStream: //读取chanStream中的channel
+			case mybeStream, ok := <-chanStream: // 读取chanStream中的channel
 				if !ok {
 					return
 				}
@@ -18,7 +18,7 @@ func Bridge(done <-chan interface{}, chanStream <-chan <-chan any) <-chan any {
 			case <-done:
 				return
 			}
-			for val := range OrDone(done, stream) { //读取channel内容发送回去
+			for val := range OrDone(done, stream) { // 读取channel内容发送回去
 				select {
 				case <-done:
 					return
@@ -38,13 +38,13 @@ func Tee(done <-chan interface{}, in <-chan any) (_, _ <-chan any) {
 		defer close(out1)
 		defer close(out2)
 		for v := range OrDone(done, in) {
-			var out1, out2 = out1, out2 //本地版本，隐藏外界变量
-			for i := 0; i < 2; i++ {    //为了确保两个channel都可以被写入我们使用两次写入
+			var out1, out2 = out1, out2 // 本地版本，隐藏外界变量
+			for i := 0; i < 2; i++ {    // 为了确保两个channel都可以被写入我们使用两次写入
 				select {
 				case <-done:
 					return
 				case out1 <- v:
-					out1 = nil //同时写入后关闭副本channel来阻塞防止二次写入
+					out1 = nil // 同时写入后关闭副本channel来阻塞防止二次写入
 				case out2 <- v:
 					out2 = nil
 				}
@@ -54,7 +54,7 @@ func Tee(done <-chan interface{}, in <-chan any) (_, _ <-chan any) {
 	return out1, out2
 }
 
-// OrDone 通过done来控制性读取chan
+// OrDone 安全地读取c
 func OrDone(done <-chan interface{}, c <-chan any) <-chan any {
 	valStream := make(chan any)
 	go func() {
@@ -67,7 +67,7 @@ func OrDone(done <-chan interface{}, c <-chan any) <-chan any {
 				if ok == false {
 					return
 				}
-				select { //可以进行优化
+				select { // 可以进行优化
 				case valStream <- v:
 				case <-done:
 				}
@@ -236,4 +236,33 @@ func Repeat(done <-chan interface{}, values ...any) <-chan any {
 		}
 	}()
 	return valueStream
+}
+
+// Or 监听多个channel 只要有一个返回消息就返回
+func Or(channels ...<-chan any) <-chan any {
+	switch len(channels) {
+	case 0:
+		return nil
+	case 1:
+		return channels[0]
+	}
+	orDone := make(chan interface{})
+	go func() {
+		defer close(orDone)
+		switch len(channels) {
+		case 2:
+			select {
+			case <-channels[0]:
+			case <-channels[1]:
+			}
+		default:
+			select {
+			case <-channels[0]:
+			case <-channels[1]:
+			case <-channels[2]:
+			case <-Or(append(channels[3:], orDone)...): // 递归退出
+			}
+		}
+	}()
+	return orDone
 }
