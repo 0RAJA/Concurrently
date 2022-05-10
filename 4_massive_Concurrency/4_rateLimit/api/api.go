@@ -4,7 +4,7 @@ import (
 	"context"
 	"time"
 
-	"Concurrently/4_massive_Concurrency/3_rateLimit/limit"
+	"Concurrently/4_massive_Concurrency/4_rateLimit/limit"
 	"golang.org/x/time/rate"
 )
 

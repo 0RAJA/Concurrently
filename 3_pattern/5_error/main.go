@@ -36,7 +36,7 @@ func T1() {
 	urls := []string{"https://google.com", "https://badhost"}
 	for result := range checkStatus(done, urls) {
 		if result.Error != nil {
-			//可以加入一些对错误的判断，如对数量的判断
+			// 可以加入一些对错误的判断，如对数量的判断
 			fmt.Println("error: ", result.Error)
 			continue
 		}

@@ -6,7 +6,7 @@ import (
 	"os"
 	"sync"
 
-	"Concurrently/4_massive_Concurrency/3_rateLimit/api"
+	"Concurrently/4_massive_Concurrency/4_rateLimit/api"
 )
 
 /*

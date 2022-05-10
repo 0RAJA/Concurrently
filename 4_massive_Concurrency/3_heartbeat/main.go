@@ -25,18 +25,18 @@ func DoWork(ctx context.Context, pulseInterval time.Duration) (<-chan interface{
 	go func() {
 		defer close(heartBeat)
 		defer close(results)
-		pulse := time.Tick(pulseInterval) //心跳
+		pulse := time.Tick(pulseInterval) // 心跳
 		workGen := time.Tick(2 * pulseInterval)
 		sendPulse := func() {
 			select {
 			case heartBeat <- pulse:
-			default: //可能没有接收者
+			default: // 可能没有接收者
 			}
 		}
 		sendResult := func(r time.Time) {
 			for {
 				select {
-				case <-ctx.Done(): //抢占
+				case <-ctx.Done(): // 抢占
 					return
 				case <-pulse:
 					sendPulse()
@@ -45,7 +45,7 @@ func DoWork(ctx context.Context, pulseInterval time.Duration) (<-chan interface{
 				}
 			}
 		}
-		//真正的控制中心
+		// 真正的控制中心
 		for {
 			select {
 			case <-ctx.Done():
@@ -64,7 +64,7 @@ func test1() {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*10)
 	defer cancel()
 	const timeout = 2 * time.Second
-	heartBeat, results := DoWork(ctx, timeout/2) //是我们对于超时有额外的响应时间
+	heartBeat, results := DoWork(ctx, timeout/2) // 是我们对于超时有额外的响应时间
 	for {
 		select {
 		case _, ok := <-heartBeat:
@@ -95,7 +95,7 @@ func DoWork2(ctx context.Context) (<-chan interface{}, <-chan int) {
 		}()
 		for i := 0; i < 10; i++ {
 			select {
-			case heartStream <- struct{}{}: //开始任务时发送信号
+			case heartStream <- struct{}{}: // 开始任务时发送信号
 			default:
 			}
 			select {
