@@ -5,7 +5,7 @@ import (
 	"os"
 	"time"
 
-	"Concurrently/3_pattern/common"
+	"github.com/0RAJA/Concurrently/3_pattern/common"
 )
 
 // 治愈异常的goroutine
@@ -21,7 +21,7 @@ import (
 // 返回值：返回管理员心跳的channel
 type StartGoroutineFn func(done <-chan any, pulseInterval time.Duration) <-chan any
 
-// NewSteward
+// NewSteward 新建一个管理员
 // 参数：下游的超时时间，创建一个可以监控和重启的goroutine的方式
 // 返回值：返回一个创建一个受管理的goroutine和其管理者的函数的创建方式
 func NewSteward(timeout time.Duration, startGoroutine StartGoroutineFn) StartGoroutineFn {
@@ -65,6 +65,7 @@ func NewSteward(timeout time.Duration, startGoroutine StartGoroutineFn) StartGor
 	}
 }
 
+// 不正常的go程
 func badWorker() StartGoroutineFn {
 	return func(done <-chan any, pulseInterval time.Duration) <-chan any {
 		log.Println("ward: Hello, I am irresponsible")
@@ -76,7 +77,7 @@ func badWorker() StartGoroutineFn {
 	}
 }
 
-// 生成int流，可以启动多个管理区副本
+// 受管理的go程:生成int流，可以启动多个管理区副本
 func generatorIntStream(done <-chan interface{}, intList ...int) (<-chan interface{}, StartGoroutineFn) {
 	intChanStream := make(chan (<-chan interface{}))
 	intStream := common.Bridge(done, intChanStream) // 从intChanStream读int流
@@ -101,7 +102,7 @@ func generatorIntStream(done <-chan interface{}, intList ...int) (<-chan interfa
 						log.Printf("negative value:%v\n", intVal)
 						return
 					}
-					time.Sleep(pulseInterval * 2)
+					time.Sleep(pulseInterval * 2) // 模拟下不正常运行
 					for {
 						select {
 						case <-pulse:
@@ -127,7 +128,7 @@ func main() {
 	log.SetFlags(log.Ltime | log.LUTC | log.Lshortfile)
 
 	done := make(chan any)
-	time.AfterFunc(time.Minute, func() { // 9s 后退出
+	time.AfterFunc(time.Minute, func() { // 1min 后退出
 		log.Println("main: halting stewart and ward.")
 		close(done)
 	})

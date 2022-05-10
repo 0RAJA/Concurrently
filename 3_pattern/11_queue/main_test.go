@@ -1,15 +1,16 @@
 package main
 
 import (
-	"Concurrently/3_pattern/common"
 	"bufio"
 	"io"
 	"log"
 	"os"
 	"testing"
+
+	"github.com/0RAJA/Concurrently/3_pattern/common"
 )
 
-//演示缓冲写入队列和未缓冲写入队列的区别
+// 演示缓冲写入队列和未缓冲写入队列的区别
 
 func BenchmarkUnBufferedWrite(b *testing.B) {
 	performWrite(b, tmpFileOrFail())

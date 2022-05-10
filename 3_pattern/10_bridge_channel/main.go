@@ -1,8 +1,9 @@
 package main
 
 import (
-	"Concurrently/3_pattern/common"
 	"fmt"
+
+	"github.com/0RAJA/Concurrently/3_pattern/common"
 )
 
 /*从一系列的channel中消费产生的值 <-chan1 <-chan2 */
@@ -14,7 +15,7 @@ func bridge(done <-chan interface{}, chanStream <-chan <-chan any) <-chan any {
 		for {
 			var stream <-chan any
 			select {
-			case mybeStream, ok := <-chanStream: //读取chanStream中的channel
+			case mybeStream, ok := <-chanStream: // 读取chanStream中的channel
 				if !ok {
 					return
 				}
@@ -22,7 +23,7 @@ func bridge(done <-chan interface{}, chanStream <-chan <-chan any) <-chan any {
 			case <-done:
 				return
 			}
-			for val := range common.OrDone(done, stream) { //读取channel内容发送回去
+			for val := range common.OrDone(done, stream) { // 读取channel内容发送回去
 				select {
 				case <-done:
 					return
@@ -34,8 +35,8 @@ func bridge(done <-chan interface{}, chanStream <-chan <-chan any) <-chan any {
 	return valStream
 }
 
-//使用桥接实现一个在一个包含多个channel的channel上实现一个单channel的门面。
-//创建10个channel，每个channel写入一个元素，并把这些channel传入桥接函数
+// 使用桥接实现一个在一个包含多个channel的channel上实现一个单channel的门面。
+// 创建10个channel，每个channel写入一个元素，并把这些channel传入桥接函数
 
 func GenVals() <-chan <-chan interface{} {
 	chanStream := make(chan (<-chan interface{}))

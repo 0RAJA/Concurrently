@@ -18,7 +18,7 @@ import (
 func Work(ctx context.Context, id int, wg *sync.WaitGroup, resultChan chan<- int) {
 	defer wg.Done()
 	start := time.Now()
-	costTime := time.Duration(rand.Intn(5)+1) * time.Second
+	costTime := time.Duration(rand.Intn(5)+1) * time.Second // 模拟耗时
 	select {
 	case <-ctx.Done():
 	case <-time.After(costTime):
@@ -35,7 +35,7 @@ func Work(ctx context.Context, id int, wg *sync.WaitGroup, resultChan chan<- int
 }
 
 // DO 开启10个程序
-func DO() {
+func test1() {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
@@ -51,10 +51,6 @@ func DO() {
 	wg.Wait()
 	close(resultChan)
 	fmt.Println("received result:", first)
-}
-
-func test1() {
-	DO()
 }
 
 func main() {

@@ -1,11 +1,12 @@
 package main
 
 import (
-	"Concurrently/3_pattern/common"
 	"fmt"
 	"math/rand"
 	"runtime"
 	"time"
+
+	"github.com/0RAJA/Concurrently/3_pattern/common"
 )
 
 /*
@@ -24,7 +25,7 @@ func t2() {
 	done := make(chan interface{})
 	defer close(done)
 	start := time.Now()
-	randIntStream := common.ToType[int64](done, common.RepeatFn(done, randFn)) //将生成的数据显式类型转换
+	randIntStream := common.ToType[int64](done, common.RepeatFn(done, randFn)) // 将生成的数据显式类型转换
 	fmt.Println("Prime")
 	finders := make([]<-chan interface{}, runtime.NumCPU())
 	for i := 0; i < len(finders); i++ {
@@ -46,5 +47,5 @@ func t1() {
 	for prime := range common.Take(done, common.PrimeFinder(done, randIntStream), 10) {
 		fmt.Println(prime)
 	}
-	fmt.Println(time.Since(start)) //58.394557933s 需要很长时间才能找到这些数
+	fmt.Println(time.Since(start)) // 58.394557933s 需要很长时间才能找到这些数
 }

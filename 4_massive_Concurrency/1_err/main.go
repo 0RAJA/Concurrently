@@ -6,7 +6,7 @@ import (
 	"log"
 	"os"
 
-	"Concurrently/4_massive_Concurrency/1_err/myerr"
+	"github.com/0RAJA/Concurrently/4_massive_Concurrency/1_err/myerr"
 )
 
 func handleErr(key int, err error, message string) {

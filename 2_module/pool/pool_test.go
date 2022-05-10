@@ -1,10 +1,11 @@
 package main
 
 import (
-	"github.com/stretchr/testify/require"
 	"io/ioutil"
 	"net"
 	"testing"
+
+	"github.com/stretchr/testify/require"
 )
 
 func init() {

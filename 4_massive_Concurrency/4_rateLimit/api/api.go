@@ -4,7 +4,7 @@ import (
 	"context"
 	"time"
 
-	"Concurrently/4_massive_Concurrency/4_rateLimit/limit"
+	"github.com/0RAJA/Concurrently/4_massive_Concurrency/4_rateLimit/limit"
 	"golang.org/x/time/rate"
 )
 
@@ -13,7 +13,7 @@ type API interface {
 	ResolveAddress(ctx context.Context) error
 }
 
-type testApi struct {
+type testAPI struct {
 	netWorkLimit, diskLimit, apiLimit limit.RateLimiter // 多个维度进行限制
 }
 
@@ -28,21 +28,21 @@ func Open() API {
 	netWorkLimit := limit.MultiLimiter(
 		rate.NewLimiter(limit.Per(3, time.Second), 3),
 	)
-	return &testApi{
+	return &testAPI{
 		apiLimit:     apiLimit,
 		diskLimit:    diskLimit,
 		netWorkLimit: netWorkLimit,
 	}
 }
 
-func (t *testApi) ReadFile(ctx context.Context) error {
+func (t *testAPI) ReadFile(ctx context.Context) error {
 	if err := limit.MultiLimiter(t.apiLimit, t.diskLimit).Wait(ctx); err != nil { // 融合api限流和磁盘限流
 		return err
 	}
 	return nil
 }
 
-func (t *testApi) ResolveAddress(ctx context.Context) error {
+func (t *testAPI) ResolveAddress(ctx context.Context) error {
 	if err := limit.MultiLimiter(t.apiLimit, t.netWorkLimit).Wait(ctx); err != nil {
 		return err
 	}
